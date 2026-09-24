@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Bank - Secure Portal</title>
+    <style>
+        /* ==========================================================================
+           CORE STYLES & RESET
+           ========================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        /* ==========================================================================
+           LOGIN SCREEN STYLES
+           ========================================================================== */
+        .login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f233c 0%, #1d3d63 50%, #2a5585 100%);
+            padding: 20px;
+        }
+
+        .login-card {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-logo-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .login-logo-box {
+            background-color: #0f233c;
+            color: #ffffff;
+            font-weight: bold;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 24px;
+            box-shadow: 0 4px 10px rgba(15, 35, 60, 0.2);
+        }
+
+        .login-bank-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f233c;
+        }
+
+        .login-welcome-text {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: -8px;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 14px;
+            background-color: #f8fafc;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4a90e2;
+            background-color: #ffffff;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background-color: #0f233c;
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+
+        .submit-btn:hover {
+            background-color: #173254;
+        }
+
+        .login-footer-text {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 24px;
+        }
+
+        /* ==========================================================================
+           MAIN DASHBOARD STYLES (Hidden by default until logged in)
+           ========================================================================== */
+        .dashboard-screen {
+            display: none;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #ffffff;
+            padding: 10px 24px;
+            border-bottom: 1px solid #e0e4ec;
+            height: 60px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-box {
+            background-color: #0f233c;
+            color: #ffffff;
+            font-weight: bold;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .bank-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f233c;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .search-bar {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-bar input {
+            padding: 6px 12px 6px 32px;
+            border: 1px solid #ccd4e0;
+            border-radius: 4px;
+            width: 220px;
+            background-color: #fcfdfe;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            color: #8898aa;
+            font-size: 14px;
+        }
+
+        .help-icon {
+            font-size: 18px;
+            color: #6b7c93;
+            cursor: pointer;
+        }
+
+        .logout-btn {
+            background-color: #0f233c;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .main-layout {
+            display: flex;
+            flex: 1;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 240px;
+            background-color: #172a3a;
+            color: #b0c4de;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            padding-top: 10px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 24px;
+            color: #a4b8cc;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover {
+            background-color: #203548;
+            color: #ffffff;
+        }
+
+        .nav-item.active {
+            background-color: #243b50;
+            color: #ffffff;
+            border-left: 4px solid #4a90e2;
+        }
+
+        .logout-link {
+            margin-top: auto;
+            border-top: 1px solid #203a50;
+        }
+
+        /* Content Workspace */
+        .content-area {
+            flex: 1;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .content-header h1 {
+            font-size: 22px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .user-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .pill-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Dashboard Profile Information Cards */
+        .profile-card, .activity-card {
+            background: #ffffff;
+            border: 1px solid #e0e6ed;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .profile-card h2, .activity-card h2 {
+            font-size: 16px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .activity-card h2 .subtext {
+            font-size: 13px;
+            color: #7f8c8d;
+            font-weight: normal;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 30px;
+        }
+
+        .profile-info-block {
+            display: flex;
+            gap: 20px;
+            background-color: #f8fafc;
+            border: 1px solid #edf2f7;
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        /* Profile Custom Photo Uploader Container */
+        .photo-upload-container {
+            width: 130px;
+            height: 150px;
+            cursor: pointer;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            overflow: hidden;
+            background-color: #e2e8f0;
+            flex-shrink: 0;
+        }
+
+        .photo-frame {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .photo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-text-details {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .user-full-name {
+            font-size: 24px;
+            color: #0f233c;
+            font-weight: 700;
+        }
+
+        .user-username {
+            font-size: 14px;
+            color: #718096;
+            margin-bottom: 10px;
+        }
+
+        .contact-item {
+            font-size: 13px;
+            color: #4a5568;
+            line-height: 1.4;
+        }
+
+        .city-zip {
+            color: #718096;
+        }
+
+        /* Balance & Financial Display */
+        .account-details-block {
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 16px;
+            background-color: #ffffff;
+        }
+
+        .account-details-block h4 {
+            font-size: 14px;
+            color: #334155;
+            margin-bottom: 12px;
+        }
+
+        .account-selector {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #cbd5e1;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            background-color: #f8fafc;
+            margin-bottom: 16px;
+        }
+
+        .arrow-down {
+            font-size: 10px;
+            color: #64748b;
+        }
+
+        .balance-section {
+            margin-bottom: 16px;
+        }
+
+        .balance-label {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .balance-amount {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0f233c;
+            margin-top: 2px;
+        }
+
+        .account-numbers-box {
+            background-color: #edf2f7;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+
+        .num-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .num-val {
+            font-family: monospace;
+            font-size: 15px;
+            letter-spacing: 1px;
+        }
+
+        .show-btn {
+            background-color: #0f233c;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 3px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .routing-row {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .routing-label {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .routing-val {
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .status-row {
+            font-size: 13px;
+            color: #4a5568;
+        }
+
+        .status-active {
+            color: #2f855a;
+            font-weight: 600;
+        }
+
+        /* Financial Statement/Transaction Table */
+        .activity-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .activity-table th {
+            text-align: left;
+            padding: 10px;
+            font-size: 12px;
+            color: #718096;
+            border-bottom: 1px solid #e2e8f0;
+            font-weight: 500;
+        }
+
+        .activity-table td {
+            padding: 14px 10px;
+            font-size: 14px;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .table-subtext {
+            font-size: 12px;
+            color: #a0aec0;
+            margin-top: 2px;
+        }
+
+        .text-right {
+            text-align: right !important;
+            
+        }
+
+        .amount-val {
+            font-weight: 500;
+        }
+
+        .dashboard-footer {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            padding-top: 20px;
+            font-size: 12px;
+            color: #718096;
+            border-top: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loginScreen" class="login-screen">
+        <div class="login-card">
+            <div class="login-logo-area">
+                <div class="login-logo-box">DB</div>
+                <div class="login-bank-name">Demo Bank</div>
+            </div>
+            <p class="login-welcome-text">Welcome back! Please sign in to manage your profile.</p>
+            
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required placeholder="Enter any username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="Enter any password">
+                </div>
+                <button type="submit" class="submit-btn">Sign In Securely</button>
+            </form>
+            
+            <p class="login-footer-text">Protected by Demo Secure System Core</p>
+        </div>
+    </div>
+
+    <div id="dashboardScreen" class="dashboard-screen">
+        <header class="top-nav">
+            <div class="logo-area">
+                <div class="logo-box">DB</div>
+                <span class="bank-name">Demo Bank</span>
+            </div>
+            <div class="nav-right">
+                <div class="search-bar">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" placeholder="Search">
+                </div>
+                <span class="help-icon">❓</span>
+                <button class="logout-btn" onclick="handleLogout()">Log Out</button>
+            </div>
+        </header>
+
+        <div class="main-layout">
+            <aside class="sidebar">
+                <nav class="sidebar-menu">
+                    <a href="#" class="nav-item"><span>🏠</span> Dashboard</a>
+                    <a href="#" class="nav-item"><span>💳</span> Accounts</a>
+                    <a href="#" class="nav-item"><span>🔄</span> Transfers</a>
+                    <a href="#" class="nav-item"><span>💵</span> Pay Bills</a>
+                    <a href="#" class="nav-item"><span>📄</span> Statements</a>
+                    <a href="#" class="nav-item active"><span>👤</span> Profile</a>
+                    <a href="#" class="nav-item"><span>⚙️</span> Settings</a>
+                    <a href="#" class="nav-item logout-link" onclick="handleLogout()"><span>🚪</span> Log Out</a>
+                </nav>
+            </aside>
+
+            <main class="content-area">
+                <div class="content-header">
+                    <h1>Account Profile</h1>
+                    <div class="user-pill">
+                        <span class="pill-icon">👤</span>
+                        <span class="pill-name" id="pillUserName">Sarah J. Thompson</span>
+                    </div>
+                </div>
+
+                <div class="profile-card">
+                    <h2>My Profile</h2>
+                    <div class="profile-grid">
+                        <div class="profile-info-block">
+                            <div class="photo-upload-container" title="Click here to swap profile picture" onclick="document.getElementById('fileInput').click();">
+                                <div class="photo-frame">
+                                    <img id="profileImage" src="photo.jpg" alt="Profile" onerror="this.src='https://via.placeholder.com/130x150?text=Upload+Photo'">
+                                </div>
+                                <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="previewImage(event)">
+                            </div>
+                            
+                            <div class="profile-text-details">
+                                <h3 class="user-full-name" id="displayFullName">Sarah J. Thompson</h3>
+                                <p class="user-username" id="displayUsername">sarah.thompson77</p>
+                                <div class="contact-item">✉️ sarah.thompson@email.com</div>
+                                <div class="contact-item">📞 (555) 123-4567</div>
+                                <div class="contact-item">📍 123 Oak Street<br><span class="city-zip">Springfield, IL 62704</span></div>
+                            </div>
+                        </div>
+
+                        <div class="account-details-block">
+                            <h4>Account Details</h4>
+                            <div class="account-selector">
+                                <span>Checking Account (*5894)</span>
+                                <span class="arrow-down">▼</span>
+                            </div>
+                            
+                            <div class="balance-section">
+                                <span class="balance-label">Current Balance</span>
+                                <div class="balance-amount">$12,450.75</div>
+                            </div>
+
+                            <div class="account-numbers-box">
+                                <div class="num-row">
+                                    <span class="num-val" id="accountNumText">*********5894</span>
+                                    <button class="show-btn" id="toggleNumBtn" onclick="toggleAccountNumber()">Show</button>
+                                </div>
+                                <div class="routing-row">
+                                    <span class="routing-label">Routing Number</span>
+                                    <span class="routing-val">071000288</span>
+                                </div>
+                            </div>
+
+                            <div class="status-row">
+                                Account Status: <span class="status-active">Active</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="activity-card">
+                    <h2>Recent Activity <span class="subtext">(Last 5 Transactions)</span></h2>
+                    <table class="activity-table">
+                        <thead>
+                            <tr>
+                                <th>Recent Activity</th>
+                                <th>Size</th>
+                                <th class="text-right">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <strong id="tableRowName">Sarah J. Thompson</strong>
+                                    <div class="table-subtext">5056, Transactions</div>
+                                </td>
+                                <td>$15.00</td>
+                                <td class="text-right amount-val">$12,450.75</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <footer class="dashboard-footer">
+                    <span>Member FDIC</span>
+                    <span class="footer-center">🏠 Equal Housing Lender</span>
+                    <span>© 2026</span>
+                </footer>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const usernameInput = document.getElementById('username').value;
+            
+            if (usernameInput.trim() !== "") {
+                document.getElementById('displayUsername').innerText = usernameInput.toLowerCase().replace(/\s+/g, '.');
+                document.getElementById('pillUserName').innerText = usernameInput;
+                document.getElementById('displayFullName').innerText = usernameInput;
+                document.getElementById('tableRowName').innerText = usernameInput;
+            }
+
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('dashboardScreen').style.display = 'flex';
+        }
+
+        function handleLogout() {
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('dashboardScreen').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+        }
+
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const output = document.getElementById('profileImage');
+                output.src = reader.result;
+            }
+            reader.readAsDataURL(event.target.files);
+        }
+
+        let isNumHidden = true;
+        function toggleAccountNumber() {
+            const textEl = document.getElementById('accountNumText');
+            const btnEl = document.getElementById('toggleNumBtn');
+            
+            if (isNumHidden) {
+                textEl.innerText = "123456785894";
+                btnEl.innerText = "Hide";
+                isNumHidden = false;
+            } else {
+                textEl.innerText = "*********5894";
+                btnEl.innerText = "Show";
+                isNumHidden = true;
+            }
+        }
+    </script>
+</body>
+</html>
